@@ -77,6 +77,7 @@ public:
     void setSize(size_t size);
 
     Node* getFirstNode() const;
+    Node* getLastNode() const;
 
     void print(); // этот метод нужен исключительно для отладки
 
@@ -283,7 +284,8 @@ void SinglyLinkedList<ValueType>::insertAfterNode(Node* node, const ValueType& v
 template<class ValueType>
 void SinglyLinkedList<ValueType>::pushBack(const ValueType& value)
 {
-    if (_size == 0) {
+    if (_size == 0)
+    {
         pushFront(value);
         return;
     }
@@ -296,7 +298,7 @@ void SinglyLinkedList<ValueType>::pushBack(const ValueType& value)
 template<class ValueType>
 void SinglyLinkedList<ValueType>::pushFront(const ValueType& value)
 {
-    _firstNode = new Node(value, _firstNode);
+    _firstNode = new Node(value, nullptr);
     ++_size;
 }
 
@@ -341,14 +343,27 @@ void SinglyLinkedList<ValueType>::removeFront()
 template<class ValueType>
 void SinglyLinkedList<ValueType>:: removeBack()
 {
-    Node* node = _firstNode;
-    for (int i = 0; i < this->_size - 2; i++)
+    if (_size == 0)
     {
-        node = node->next;
+        throw std::runtime_error("list is empty");
     }
-    delete node->next;
-    node->next = nullptr;
-    _size--;
+    if (_size == 1)
+    {
+        delete _firstNode;
+        _firstNode = nullptr;
+        _size--;
+    }
+    else
+    {
+        Node* node = _firstNode;
+        while(node->next->next)
+        {
+            node = node->next;
+        }
+        delete node->next;
+        node->next = nullptr;
+        _size--;
+    }
 }
 
 template<class ValueType>
@@ -443,5 +458,16 @@ template<class ValueType>
 void SinglyLinkedList<ValueType>::setSize(size_t size)
 {
     this->_size = size;
+}
+
+template<class ValueType>
+class SinglyLinkedList<ValueType>::Node *SinglyLinkedList<ValueType>::getLastNode() const
+{
+    Node *node = _firstNode;
+    while (node->next)
+    {
+        node = node->next;
+    }
+    return node;
 }
 
