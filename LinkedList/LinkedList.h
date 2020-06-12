@@ -1,9 +1,12 @@
+//
+// Created by trykr on 30.05.2020.
+//
 #pragma once
 #include <cstdlib>
 #include <iostream>
 #include <cassert>
 template <class ValueType>
-class LinkedList
+class SinglyLinkedList
 {
 public:
     struct Node{
@@ -31,14 +34,14 @@ private:
 // (доступ по ключу, поиск по ключу и т.д.)
 public:
     ////
-    LinkedList();
-    LinkedList(const LinkedList& copyList);
-    LinkedList& operator=(const LinkedList& copyList);
+    SinglyLinkedList();
+    SinglyLinkedList(const SinglyLinkedList& copyList);
+    SinglyLinkedList& operator=(const SinglyLinkedList& copyList);
 
-    LinkedList(LinkedList&& moveList) noexcept;
-    LinkedList& operator=(LinkedList&& moveList) noexcept;
+    SinglyLinkedList(SinglyLinkedList&& moveList) noexcept;
+    SinglyLinkedList& operator=(SinglyLinkedList&& moveList) noexcept;
 
-    ~LinkedList();
+    ~SinglyLinkedList();
     ////
     // доступ к значению элемента по индексу
     ValueType& operator[](const size_t pos) const;
@@ -66,41 +69,46 @@ public:
 
     // разворот списка
     void reverse();
-    LinkedList reverse() const;// полчение нового списка (для константных объектов)
-    LinkedList getReverseList() const; // чтобы неконстантный объект тоже мог возвращать новый развернутый список
+    SinglyLinkedList reverse() const;// полчение нового списка (для константных объектов)
+    SinglyLinkedList getReverseList() const; // чтобы неконстантный объект тоже мог возвращать новый развернутый список
 
-    size_t size() const;
+    size_t sizeList() const;
+
+    void setSize(size_t size);
+
+    Node* getFirstNode() const;
+    Node* getLastNode() const;
 
     void print(); // этот метод нужен исключительно для отладки
 
 };
 
 template<class ValueType>
-LinkedList<ValueType>::Node::Node()
+SinglyLinkedList<ValueType>::Node::Node()
 {
     this->value = ValueType();
     this->next = nullptr;
 }
 
 template<class ValueType>
-LinkedList<ValueType>::Node::Node(const ValueType& value, Node* next)
+SinglyLinkedList<ValueType>::Node::Node(const ValueType& value, Node* next)
 {
     this->value = value;
     this->next = next;
 }
 
 template<class ValueType>
-LinkedList<ValueType>::Node::~Node() {}
+SinglyLinkedList<ValueType>::Node::~Node() {}
 
 template<class ValueType>
-void LinkedList<ValueType>::Node::insertNext(const ValueType& value)
+void SinglyLinkedList<ValueType>::Node::insertNext(const ValueType& value)
 {
     Node* newNode = new Node(value, this->next);
     this->next = newNode;
 }
 
 template<class ValueType>
-void LinkedList<ValueType>::Node::removeNext()
+void SinglyLinkedList<ValueType>::Node::removeNext()
 {
     Node* removeNode = this->next;
     Node* newNext = removeNode->next;
@@ -109,7 +117,7 @@ void LinkedList<ValueType>::Node::removeNext()
 }
 
 template<class ValueType>
-void LinkedList<ValueType>::Node::forceNodeDelete(Node *node)
+void SinglyLinkedList<ValueType>::Node::forceNodeDelete(Node *node)
 {
     if (node == nullptr) {
         return;
@@ -120,14 +128,14 @@ void LinkedList<ValueType>::Node::forceNodeDelete(Node *node)
 }
 
 template<class ValueType>
-LinkedList<ValueType>::LinkedList()
+SinglyLinkedList<ValueType>::SinglyLinkedList()
 {
     _firstNode = nullptr;
     this->_size = 0;
 }
 
 template<class ValueType>
-LinkedList<ValueType>::LinkedList(const LinkedList& copyList)
+SinglyLinkedList<ValueType>::SinglyLinkedList(const SinglyLinkedList& copyList)
 {
     this->_size = copyList._size;
     this->_firstNode = new Node(copyList._firstNode->value);
@@ -143,12 +151,12 @@ LinkedList<ValueType>::LinkedList(const LinkedList& copyList)
 }
 
 template<class ValueType>
-LinkedList<ValueType>& LinkedList<ValueType>:: operator=(const LinkedList& copyList)
+SinglyLinkedList<ValueType>& SinglyLinkedList<ValueType>:: operator=(const SinglyLinkedList& copyList)
 {
     if (this == &copyList) {
         return *this;
     }
-    LinkedList bufList(copyList);
+    SinglyLinkedList bufList(copyList);
     this->_size = bufList._size;
     if (this->_firstNode != nullptr)
     {
@@ -169,7 +177,7 @@ LinkedList<ValueType>& LinkedList<ValueType>:: operator=(const LinkedList& copyL
 }
 
 template<class ValueType>
-LinkedList<ValueType>::LinkedList(LinkedList&& moveList) noexcept
+SinglyLinkedList<ValueType>::SinglyLinkedList(SinglyLinkedList&& moveList) noexcept
 {
     this->_size = moveList._size;
     this->_firstNode = moveList._firstNode;
@@ -179,7 +187,7 @@ LinkedList<ValueType>::LinkedList(LinkedList&& moveList) noexcept
 }
 
 template<class ValueType>
-LinkedList<ValueType>& LinkedList<ValueType>::operator=(LinkedList&& moveList) noexcept
+SinglyLinkedList<ValueType>& SinglyLinkedList<ValueType>::operator=(SinglyLinkedList&& moveList) noexcept
 {
     if (this == &moveList) {
         return *this;
@@ -195,7 +203,7 @@ LinkedList<ValueType>& LinkedList<ValueType>::operator=(LinkedList&& moveList) n
 }
 
 template<class ValueType>
-LinkedList<ValueType>:: ~LinkedList()
+SinglyLinkedList<ValueType>:: ~SinglyLinkedList()
 {
     _firstNode->forceNodeDelete(this->_firstNode);
 //    if (_firstNode == nullptr)
@@ -219,13 +227,13 @@ LinkedList<ValueType>:: ~LinkedList()
 }
 
 template<class ValueType>
-ValueType& LinkedList<ValueType>:: operator[](const size_t pos) const
+ValueType& SinglyLinkedList<ValueType>:: operator[](const size_t pos) const
 {
     return getNode(pos)->value;
 }
 
 template<class ValueType>
-class LinkedList<ValueType>::Node* LinkedList<ValueType>::getNode(const size_t pos) const
+class SinglyLinkedList<ValueType>::Node* SinglyLinkedList<ValueType>::getNode(const size_t pos) const
 {
     if (pos < 0) {
         throw std::out_of_range ("pos < 0");
@@ -244,7 +252,7 @@ class LinkedList<ValueType>::Node* LinkedList<ValueType>::getNode(const size_t p
 }
 
 template<class ValueType>
-void LinkedList<ValueType>::insert(const size_t pos, const ValueType& value)
+void SinglyLinkedList<ValueType>::insert(const size_t pos, const ValueType& value)
 {
     if (pos < 0) {
         throw std::out_of_range ("pos < 0");
@@ -267,16 +275,17 @@ void LinkedList<ValueType>::insert(const size_t pos, const ValueType& value)
 }
 
 template<class ValueType>
-void LinkedList<ValueType>::insertAfterNode(Node* node, const ValueType& value)
+void SinglyLinkedList<ValueType>::insertAfterNode(Node* node, const ValueType& value)
 {
     node->insertNext(value);
     this->_size++;
 }
 
 template<class ValueType>
-void LinkedList<ValueType>::pushBack(const ValueType& value)
+void SinglyLinkedList<ValueType>::pushBack(const ValueType& value)
 {
-    if (_size == 0) {
+    if (_size == 0)
+    {
         pushFront(value);
         return;
     }
@@ -287,14 +296,14 @@ void LinkedList<ValueType>::pushBack(const ValueType& value)
 }
 
 template<class ValueType>
-void LinkedList<ValueType>::pushFront(const ValueType& value)
+void SinglyLinkedList<ValueType>::pushFront(const ValueType& value)
 {
-    _firstNode = new Node(value, _firstNode);
+    _firstNode = new Node(value, nullptr);
     ++_size;
 }
 
 template<class ValueType>
-void LinkedList<ValueType>:: remove(const size_t pos)
+void SinglyLinkedList<ValueType>:: remove(const size_t pos)
 {
     if (pos < 0)
         throw std::out_of_range("pos< 0");
@@ -310,7 +319,7 @@ void LinkedList<ValueType>:: remove(const size_t pos)
     }
 }
 template <class ValueType>
-void LinkedList<ValueType>:: removeNextNode(Node* node)
+void SinglyLinkedList<ValueType>:: removeNextNode(Node* node)
 {
     Node *deletedNode = node->next;
     node->next = node->next->next;
@@ -319,7 +328,7 @@ void LinkedList<ValueType>:: removeNextNode(Node* node)
 }
 
 template<class ValueType>
-void LinkedList<ValueType>::removeFront()
+void SinglyLinkedList<ValueType>::removeFront()
 {
     if (_size == 0)
     {
@@ -332,20 +341,33 @@ void LinkedList<ValueType>::removeFront()
 }
 
 template<class ValueType>
-void LinkedList<ValueType>:: removeBack()
+void SinglyLinkedList<ValueType>:: removeBack()
 {
-    Node* node = _firstNode;
-    for (int i = 0; i < this->_size - 2; i++)
+    if (_size == 0)
     {
-        node = node->next;
+        throw std::runtime_error("list is empty");
     }
-    delete node->next;
-    node->next = nullptr;
-    _size--;
+    if (_size == 1)
+    {
+        delete _firstNode;
+        _firstNode = nullptr;
+        _size--;
+    }
+    else
+    {
+        Node* node = _firstNode;
+        while(node->next->next)
+        {
+            node = node->next;
+        }
+        delete node->next;
+        node->next = nullptr;
+        _size--;
+    }
 }
 
 template<class ValueType>
-long long int LinkedList<ValueType>::findIndex(const ValueType& value) const
+long long int SinglyLinkedList<ValueType>::findIndex(const ValueType& value) const
 {
     long long int i = 0;
     Node *currentNode = _firstNode;
@@ -360,7 +382,7 @@ long long int LinkedList<ValueType>::findIndex(const ValueType& value) const
 }
 
 template<class ValueType>
-class LinkedList<ValueType>::Node* LinkedList<ValueType>::findNode(const ValueType& value) const
+class SinglyLinkedList<ValueType>::Node* SinglyLinkedList<ValueType>::findNode(const ValueType& value) const
 {
     size_t i = 0;
     Node *currentNode = _firstNode;
@@ -374,7 +396,7 @@ class LinkedList<ValueType>::Node* LinkedList<ValueType>::findNode(const ValueTy
     return nullptr;
 }
 template<class ValueType>
-void LinkedList<ValueType>:: reverse()
+void SinglyLinkedList<ValueType>:: reverse()
 {
     Node *previousNode= _firstNode;
     Node *currentNode = _firstNode->next;
@@ -394,28 +416,28 @@ void LinkedList<ValueType>:: reverse()
     _firstNode = currentNode;
 }
 template<class ValueType>
-LinkedList<ValueType> LinkedList<ValueType>:: reverse() const
+SinglyLinkedList<ValueType> SinglyLinkedList<ValueType>:: reverse() const
 {
-    LinkedList reversedList = *this;
+    SinglyLinkedList reversedList = *this;
     reversedList.reverse();
     return reversedList;
 }
 
 
 template<class ValueType>
-LinkedList<ValueType> LinkedList<ValueType>:: getReverseList() const
+SinglyLinkedList<ValueType> SinglyLinkedList<ValueType>:: getReverseList() const
 {
     return this->reverse();
 }
 
 template<class ValueType>
-size_t LinkedList<ValueType> :: size() const
+size_t SinglyLinkedList<ValueType> :: sizeList() const
 {
     return _size;
 }
 
 template<class ValueType>
-void LinkedList<ValueType>::print()
+void SinglyLinkedList<ValueType>::print()
 {
     Node* node = this->_firstNode;
     while(node->next != nullptr)
@@ -426,3 +448,25 @@ void LinkedList<ValueType>::print()
     std::cout << node->value<< std::endl;
 }
 
+template<class ValueType>
+class SinglyLinkedList<ValueType>::Node *SinglyLinkedList<ValueType>::getFirstNode() const
+{
+    return _firstNode;
+}
+
+template<class ValueType>
+void SinglyLinkedList<ValueType>::setSize(size_t size)
+{
+    this->_size = size;
+}
+
+template<class ValueType>
+class SinglyLinkedList<ValueType>::Node *SinglyLinkedList<ValueType>::getLastNode() const
+{
+    Node *node = _firstNode;
+    while (node->next)
+    {
+        node = node->next;
+    }
+    return node;
+}
