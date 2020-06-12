@@ -380,51 +380,40 @@ void MyVector<ValueType>::popFront()
 template<class ValueType>
 void MyVector<ValueType>::erase(const size_t i)
 {
-    ValueType* newData = new ValueType[this->_capacity];
-    for (int j = 0; j < i; j++)
-    {
-        newData[j] = this->_data[j];
-    }
-    for (int j = i; j < this->_size - 1; j++)
-    {
-        newData[j] = this->_data[j + 1];
-    }
-    newData[this->_size - 1] = ValueType();
-    delete[] this->_data;
-    this->_data = newData;
-    this->_size--;
+    this->erase(i, 1);
 }
 template<class ValueType>
 void MyVector<ValueType>::erase(const size_t i, const size_t len)
 {
-    if (len > _size)
-        throw std::out_of_range("len > _size");
-    if (len < 0)
-        throw std::out_of_range("len < 0");
-    size_t newCap;
-    if (this->_strategy == ResizeStrategy::Additive)
+    if (len + i > _size)
     {
-        newCap = (this->_size - len) + std::ceil(_coef);
+        throw std::out_of_range("Out of range");
     }
-    else
+    if (i != _size - len + 1)
     {
-        newCap = std::ceil((float)(this->_size - len) * _coef);
+        for (int j = i; j < _size; j++)
+        {
+            if (j + len > _size)
+                this->_data[j] = ValueType();
+            else
+                this->_data[j] = this->_data[j + len];
+        }
     }
-    if (newCap == 0)
-        newCap++;
-    ValueType* newData = new ValueType[newCap];
-    for (int j = 0; j < i; j++)
+    resize(_size - len);
+    if (loadFactor() < 0.5)
     {
-        newData[j] = this->_data[j];
+        if (this->_strategy == ResizeStrategy::Additive)
+            this->reserve(_size + std::ceil(_coef));
+        else
+        {
+            if (_size != 0)
+                this->reserve(_size * std::ceil(_coef));
+            else
+                this->reserve(1 * std::ceil(_coef));
+        }
     }
-    for (int j = i; j < this->_size - len; j++)
-    {
-        newData[j] = this->_data[j + len];
-    }
-    delete[] this->_data;
-    this->_data = newData;
-    this->_size -= len;
-    this->_capacity = newCap;
+
+
 }
 template<class ValueType>
 long long int MyVector<ValueType>::find(const ValueType& value, bool isBegin) const
@@ -591,14 +580,12 @@ MyVector<ValueType> MyVector<ValueType>::sortedSquares(SortedStrategy strategy)
             if (abs(this->_data[i]) >= abs(this->_data[j]))
             {
                 vec[k] = this->_data[i] * this->_data[i];
-                //std:: cout << vector._data[k] << std::endl;
                 i++;
                 k--;
             }
             else
             {
                 vec[k] = this->_data[j] * this->_data[j];
-                //std:: cout << vector._data[k] << std:: endl;
                 j--;
                 k--;
             }
